@@ -9,8 +9,10 @@ use axum::{
     Json,
     Router,
     routing::get,
+    http::Method,
 };
 use chrono::NaiveDateTime;
+use tower_http::cors::{Any, CorsLayer};
 
 #[allow(unused)]
 #[derive(Deserialize, Debug)]
@@ -47,10 +49,15 @@ async fn main() -> Result<(), sqlx::Error> {
         run_mqtt(mqtt_pool).await;
     });
 
+    let cors = CorsLayer::new()
+        .allow_methods(Method::GET)
+        .allow_origin(Any);
+
     let app = Router::new()
         .route("/data/latest", get(get_latest))
         .route("/data/all", get(get_all))
-        .with_state(shared_pool);
+        .with_state(shared_pool)
+        .layer(cors);
 
     println!("REST API running in http://127.0.0.1:3000");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
