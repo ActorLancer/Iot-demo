@@ -12,7 +12,7 @@ struct SensorData {
 
 #[tokio::main]
 async fn main() {
-    // 1.
+    // 
     let mut mqttoptions = MqttOptions::new("iot-device-1", "localhost", 1883);
     mqttoptions.set_keep_alive(Duration::from_secs(5));
 
