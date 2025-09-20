@@ -1,6 +1,7 @@
 # Iot-demo
 
 ## 架构图
+
 ```
 ┌──────────┐       MQTT        ┌───────────────┐       REST API        ┌──────────────┐
 │ IoT设备端 │ ───────────────▶ │ MQTT Broker    │ ───────────────────▶ │ IoT 服务端   │
@@ -21,7 +22,9 @@
 ```
 
 ## 环境准备
+
 1. 安装 Rust 工具链
+
 ```
 sudo apt update
 sudo apt install build-essential pkg-config libssl-dev -y
@@ -36,6 +39,7 @@ cargo --version
 ```
 
 2. 安装 Docker（用于运行 MQTT broker 和 PostgreSQL）
+
 ```
 sudo apt install docker.io docker-compose -y
 sudo systemctl enable docker --now
@@ -43,21 +47,24 @@ sudo usermod -aG docker $USER
 ```
 
 3. 启动 MQTT broker（Eclipse Mosquitto）
+
 ```
 docker run -it -d --name mosquitto \
   -p 1883:1883 \
   -v $PWD/mosquitto.conf:/mosquitto/config/mosquitto.conf \
   eclipse-mosquitto
 ```
+
 | 需要手动修改配置文件，允许匿名访问（用于测试环境）
 
-
 4. 启动数据库（PostgreSQL）
+
 ```
 docker run --name postgres -e POSTGRES_PASSWORD=123456 -p 5432:5432 -d postgres
 ```
 
 5. 数据库准备
+
 ```
 # 进入数据库
 docker exec -it postgres psql -U postgres
@@ -72,23 +79,32 @@ CREATE TABLE sensor_data (
     temperature FLOAT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+# 修改数据库表结构（增加湿度）
+ALTER TABLE sensor_data ADD COLUMN humidity FLOAT DEFAULT 0;
+
 # 退出
 \q
 ```
 
 ## 测试
+
 1. 启动订阅
+
 ```
 mosquitto_sub -h localhost -t test
 ```
 
 2. 另一个终端，发布：
+
 ```
 mosquitto_pub -h localhost -t test -m "hello iot"
 ```
+
 | 订阅端会收到消息
 
 3. 数据库验证
+
 ```
 docker exec -it postgres psql -U postgres -d iot
 SELECT * FROM sensor_data;
