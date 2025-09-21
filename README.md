@@ -49,8 +49,9 @@ sudo usermod -aG docker $USER
 3. 启动 MQTT broker（Eclipse Mosquitto）
 
 ```
+# 端口映射 1884:1883，防止和本地已有的 MQTT broker 冲突
 docker run -it -d --name mosquitto \
-  -p 1883:1883 \
+  -p 1884:1883 \
   -v $PWD/mosquitto.conf:/mosquitto/config/mosquitto.conf \
   eclipse-mosquitto
 ```
